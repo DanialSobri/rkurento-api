@@ -1,7 +1,8 @@
-import express, { Express, Request, Response } from 'express';
+import express, { Express } from 'express';
 import bodyParser from 'body-parser';
 import helmet from 'helmet';
 import dotenv from 'dotenv';
+import routes from './routes'
 
 dotenv.config();
 
@@ -12,8 +13,7 @@ app.use(helmet());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-app.get('/', (req: Request, res: Response) => {
-  res.send('<h1>Hello from the TypeScript world!</h1>');
+app.listen(PORT, () => {
+  console.log(`Running on ${PORT} ⚡`);
+  routes(app);
 });
-
-app.listen(PORT, () => console.log(`Running on ${PORT} ⚡`));

@@ -11,11 +11,8 @@ describe('RKurento Basic Test', () => {
     const option = {
         log : false,
     }
-    
-    it('Get Kurento Client with', async () => {
-        let client = await getKurentoClient("ws://167.99.255.24:8888/kurento");
-
-        expect(client).to.not.null;
+    after(function () {
+        // console.log("      - Done RKurento Basic Test")
     });
     it('Create Kurento Pipeline', async () => {
 

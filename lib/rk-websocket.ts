@@ -1,11 +1,20 @@
-import express, { Express, Request , response, Response} from 'express';
+import express, { Express, Request, response, Response } from 'express';
 import { WebSocketServer } from 'ws';
-import { createServer } from 'https';
+import { createServer } from 'http';
 import { readFileSync } from 'fs';
 import ip from 'ip';
 
 // RKurentoAPI
-import { getSessions } from './RKurentoAPI/rkurento-api'
+import {
+    getSessions
+} from './RKurentoAPI/rkurento-api'
+import {
+    createRoom,
+    onIceCandidate
+} from './RKurentoAPI/rkurento-api';
+import {
+    RoomsManager
+} from './RKurentoAPI/rk-room';
 
 const options =
 {
@@ -15,108 +24,129 @@ const options =
 const WSPORT = process.env.WSPORT || 4040;
 const KMSURI = process.env.KMSURI || "ws://167.99.255.24:8888/kurento";
 
-export default function(app: Express, sessionHandler: express.RequestHandler){
+export default function (app: Express, sessionHandler: express.RequestHandler) {
 
-    const server = createServer(options, app).listen(WSPORT, () => {
-        console.log(`Running Websocket on wss://${ip.address()}:${WSPORT}/rkapi ⚡`);
+    const server = createServer(app).listen(WSPORT, () => {
+        console.log(`Running Websocket on ws://${ip.address()}:${WSPORT}/rkapi ⚡`);
     })
     const wss = new WebSocketServer({
-        server,
+        server: server,
         path: '/rkapi'
-      })
-    
+    })
+
     /*
     * Management of WebSocket messages
     */
-    wss.on('connection', function (ws, request:Request) {
-    let sessionId : string = "";
-    let websocketId : any = null; // differ tabs
-    const req = request;
-    const res: Response = response.writeHead(200, {});
-    
-    // Apply session handling
-    sessionHandler(req, res, function () {
-        sessionId = req.session.id
-        console.log('Connection received with sessionId ' + sessionId)
-        const websocketId = req.headers['sec-websocket-key']
-    })
+    wss.on('connection', function (ws, request: Request) {
+        let sessionId: string = "";
+        let websocketId: any = null; // differ tabs
+        const req = request;
+        let res: Response = response.writeHead(200, {});
+        // Apply session handling
+        sessionHandler(req, res, function () {
+            sessionId = req.session.id
+            console.log('Connection received with sessionId ' + sessionId)
+            websocketId = req.headers['sec-websocket-key']
+        })
 
-    ws.on('error', function (error) {
-        console.log('Connection ' + sessionId + ' error');
-        // stop(sessionId, websocketId)
-    })
+        ws.on('error', function (error) {
+            console.log('Connection ' + sessionId + ' error');
+            // stop(sessionId, websocketId)
+        })
 
-    ws.on('close', function () {
-        console.log('Connection ' + sessionId + ' , ' + websocketId + ' closed');
-        // stop(sessionId, websocketId)
-    })
+        ws.on('close', function () {
+            console.log('Connection ' + sessionId + ' , ' + websocketId + ' closed');
+            // stop(sessionId, websocketId)
+        })
 
-    ws.on('message', function (_message : string) {
-        const message = JSON.parse(_message)
-        console.log('Connection ' + sessionId + ' received message ', message);
-        console.log()
+        ws.on('message', async function (_message: string) {
+            const message = JSON.parse(_message)
+            console.log('Connection ' + sessionId + ' received message ' + message.id);
 
-        switch (message.id) {
-        case 'ping':
-            
-            ws.send(JSON.stringify({
-            id: 'pong',
-            message: 'from RK API Server for client with ' + sessionId
-            }))
-            break
+            switch (message.id) {
+                case 'ping':
 
-        case 'stats':
-            getSessions(KMSURI).then(value => {
-                console.log(KMSURI)
-                ws.send(JSON.stringify({
-                    id: 'serverStats',
-                    message: 'Sucessfully send stats to' + sessionId + "with value" + value
+                    ws.send(JSON.stringify({
+                        id: 'pong',
+                        message: 'from RK API Server for client with ' + sessionId
                     }))
-            })
-            break
+                    break
 
-        case 'joinRoom':
-            sessionId = request.session.id;
-            websocketId = request.headers['sec-websocket-key'];
-            // start(sessionId, websocketId, ws, message.sdpOffer, true, function(error, sdpAnswer) {
-            //     if (error) {
-            //         return ws.send(JSON.stringify({
-            //             id : 'error',
-            //             message : error
-            //         }));
-            //     }
-            //     ws.send(JSON.stringify({
-            //         id : 'startResponse',
-            //         sdpAnswer : sdpAnswer
-            //     }));
-            // });
-            break;
+                case 'stats':
+                    const availableRoom = RoomsManager.getSingleton().getAllSessions()
+                    const Sessions = await getSessions(KMSURI)
+                    console.info("Num of Sessions: ", Sessions?.length)
+                    ws.send(JSON.stringify({
+                        id: 'serverStats',
+                        message: ' Rooms:' + JSON.stringify(availableRoom)
+                    }))
+                    break
 
-            case 'leaveRoom':
-                sessionId = request.session.id;
-                websocketId = request.headers['sec-websocket-key'];
-                // start(sessionId, websocketId, ws, message.sdpOffer, true, function(error, sdpAnswer) {
-                //     if (error) {
-                //         return ws.send(JSON.stringify({
-                //             id : 'error',
-                //             message : error
-                //         }));
-                //     }
-                //     ws.send(JSON.stringify({
-                //         id : 'startResponse',
-                //         sdpAnswer : sdpAnswer
-                //     }));
-                // });
-                break;
-                
-        default:
-            ws.send(JSON.stringify({
-            id: 'error',
-            message: 'Invalid message ' + message
-            }))
-            break
-        }
+                case 'createRoom':
+                    sessionId = request.session.id;
+                    websocketId = request.headers['sec-websocket-key'];
+                    let roomId; let sdpAnswer;
+                    [roomId, sdpAnswer] = await createRoom(KMSURI, websocketId, ws, message.sdpOffer)
+                    if (!roomId) {
+                        return ws.send(JSON.stringify({
+                            id: 'error',
+                            message: 'Error creating room'
+                        }));
+                    }
+                    ws.send(JSON.stringify({
+                        id: 'createdRoom',
+                        roomId: roomId,
+                        sdpAnswer: sdpAnswer
+                    }));
+                    console.log("Room ", JSON.stringify(RoomsManager.getSingleton().getRoom(roomId), null, 2))
+                    break;
+
+                case 'joinRoom':
+                    sessionId = request.session.id;
+                    websocketId = request.headers['sec-websocket-key'];
+                    // start(sessionId, websocketId, ws, message.sdpOffer, true, function(error, sdpAnswer) {
+                    //     if (error) {
+                    //         return ws.send(JSON.stringify({
+                    //             id : 'error',
+                    //             message : error
+                    //         }));
+                    //     }
+                    //     ws.send(JSON.stringify({
+                    //         id : 'startResponse',
+                    //         sdpAnswer : sdpAnswer
+                    //     }));
+                    // });
+                    break;
+
+                case 'leaveRoom':
+                    sessionId = request.session.id;
+                    websocketId = request.headers['sec-websocket-key'];
+                    // start(sessionId, websocketId, ws, message.sdpOffer, true, function(error, sdpAnswer) {
+                    //     if (error) {
+                    //         return ws.send(JSON.stringify({
+                    //             id : 'error',
+                    //             message : error
+                    //         }));
+                    //     }
+                    //     ws.send(JSON.stringify({
+                    //         id : 'startResponse',
+                    //         sdpAnswer : sdpAnswer
+                    //     }));
+                    // });
+                    break;
+
+                case 'onIceCandidate':
+                    console.log("Register collected Ice for sessionId: ", sessionId, " , ws: ", websocketId)
+                    onIceCandidate(message.roomId, websocketId, message.candidate);
+                    break;
+
+                default:
+                    ws.send(JSON.stringify({
+                        id: 'error',
+                        message: 'Invalid message ' + message
+                    }))
+                    break
+            }
+        })
     })
-    })
-      
 }

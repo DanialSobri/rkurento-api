@@ -5,7 +5,7 @@ import dotenv from 'dotenv';
 import routes from './basic/routes';
 import cookieParser from 'cookie-parser';
 import session from 'express-session';
-import rkwebsocket from './rkwebsocket'
+import rkwebsocket from './rk-websocket'
 import ip from 'ip';
 
 dotenv.config();
@@ -29,10 +29,9 @@ app.use(helmet());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
+rkwebsocket(app,sessionHandler);
 
 app.listen(PORT, () => {
   console.log(`Running Restful on http://${ip.address()}:${PORT} ⚡`);
   routes(app);
-  rkwebsocket(app,sessionHandler);
-
 });

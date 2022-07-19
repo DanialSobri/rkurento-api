@@ -1,14 +1,18 @@
-import Room from '../rk-room';
 import { expect } from 'chai';
+import {
+    RoomsManager
+} from '../rk-room';
 
 describe('RKurento Room Test', function() {
+
+    const roomMgr = RoomsManager.getSingleton()
     const option = {
-        log : false,
+        log : true,
     }
 
     it('Add new Room', function() {
-        let room = new Room();
-        expect(room.updateRoomdb()).equal(true);
-        option.log? console.log("Room with ID",room.roomId):{};
+        // roomMgr.registerRoom()
+        // expect(room.updateRoomdb()).equal(true);
+        // option.log? console.log("Room with ID",room.roomId):{};
     });
 });

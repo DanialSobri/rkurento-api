@@ -9,7 +9,8 @@
     "dev": "cross-env NODE_ENV=development concurrently \"tsc --watch\" \"nodemon -q dist/server.js\"",
     "prestart": "npm run build",
     "start": "cross-env NODE_ENV=production node dist/server.js",
-    "test": "mocha -r ts-node/register ./lib/**/tests/*.test.ts",
+    "testAll": "mocha -r ts-node/register ./lib/**/tests/*.test.ts",
+    "test": "mocha -r ts-node/register ./lib/**/tests/rkurento-api.test.ts",
     "coverage": "nyc -r text -e .ts -x \"./lib/**/tests/*.test.ts\" npm run test"
   },
   "author": "Danial Sobri",

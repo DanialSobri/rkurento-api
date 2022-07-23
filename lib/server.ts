@@ -18,9 +18,9 @@ const app: Express = express();
  */
 const oneDay = 1000 * 60 * 60 * 24
 const sessionHandler = session({
-  secret: process.env.SECRET_KEY ||'thisismysecrctekeyfhrgfgrfrty84fwir767',
+  secret: process.env.SECRET_KEY || 'thisismysecrctekeyfhrgfgrfrty84fwir767',
   saveUninitialized: true,
-  cookie: { maxAge: oneDay },
+  cookie: { maxAge: oneDay, secure: true },
   resave: false
 })
 app.use(sessionHandler)
@@ -29,7 +29,7 @@ app.use(helmet());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-rkwebsocket(app,sessionHandler);
+rkwebsocket(app, sessionHandler);
 
 app.listen(PORT, () => {
   console.log(`Running Restful on http://${ip.address()}:${PORT} ⚡`);

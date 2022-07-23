@@ -56,7 +56,7 @@ export class RoomsManager {
    * Registering Room by adding and saving it in an Array
    */
   public registerRoom(pipeline: kurento.MediaPipeline,
-    websocketId?: string,
+    websocketId: string,
     webRtcEndpoint?: kurento.WebRtcEndpoint,
     compositeHub?: kurento.Composite,
     outputAudioPort?: kurento.HubPort,
@@ -70,19 +70,32 @@ export class RoomsManager {
       compositeHub: compositeHub,
       outputAudioPort: outputAudioPort,
       outputVideoPort: outputVideoPort,
-      participants : []
+      participants: []
     })
     // Update participants endpoints
-    this.getRoom(roomId)?.participants?.push({
-      wsid: websocketId,
-      webRtcEndpoint: webRtcEndpoint,
-      candidatesQueue: []
-    })
+    this.updateParticipants(roomId, websocketId, webRtcEndpoint)
     return roomId;
   }
 
   /**
-   * ### addIceCandidate
+   * ### UpdateParticipants
+   * Update Participants by adding and saving it in an Array
+   */
+  public updateParticipants(roomId: string, wsid: string, webRtcEndpoint?: kurento.WebRtcEndpoint) {
+    // Update participants endpoints
+    if (webRtcEndpoint) {
+      this.getRoom(roomId)?.participants?.push({
+        wsid: wsid,
+        webRtcEndpoint: webRtcEndpoint,
+        candidatesQueue: []
+      })
+      return true;
+    }
+    return false;
+  }
+
+  /**
+   * ### UpdateIceCandidate
    * Registering Room by adding and saving it in an Array
    */
   public updateIceCandidateQueue(roomId: string, wsid: string, iceCandidate: RTCIceCandidate) {
@@ -126,8 +139,8 @@ export class RoomsManager {
    * ### getIceCandidates
    * Registering Room by adding and saving it in an Array
    */
-  public getIceCandidatesQueue(roomId: string | undefined, websocketId:string) {
-    const iceCandidates = this.getParticipant(roomId,websocketId)?.candidatesQueue
+  public getIceCandidatesQueue(roomId: string | undefined, websocketId: string) {
+    const iceCandidates = this.getParticipant(roomId, websocketId)?.candidatesQueue
     return iceCandidates
   }
 }

@@ -6,10 +6,10 @@ import kurento, { getSingleton } from 'kurento-client';
 /*
  * Definition of global variables.
  */
-export let m_kurentoClient:kurento.ClientInstance;
+export let m_kurentoClient: kurento.ClientInstance;
 
 export const getKurentoClient = async (ws_url: string): Promise<kurento.ClientInstance> => {
-    if(m_kurentoClient){
+    if (m_kurentoClient) {
         return m_kurentoClient;
     }
     m_kurentoClient = await getSingleton(ws_url);

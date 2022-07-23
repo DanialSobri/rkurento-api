@@ -10,6 +10,8 @@ import {
 } from './RKurentoAPI/rkurento-api'
 import {
     createRoom,
+    joinRoom,
+    leaveRoom,
     onIceCandidate
 } from './RKurentoAPI/rkurento-api';
 import {
@@ -74,8 +76,9 @@ export default function (app: Express, sessionHandler: express.RequestHandler) {
 
                 case 'stats':
                     const availableRoom = RoomsManager.getSingleton().getAllSessions()
-                    const Sessions = await getSessions(KMSURI)
-                    console.info("Num of Sessions: ", Sessions?.length)
+                    const sessions = await getSessions(KMSURI)
+                    console.log(sessions)
+                    console.info("Num of Sessions: ", sessions?.length)
                     ws.send(JSON.stringify({
                         id: 'serverStats',
                         message: ' Rooms:' + JSON.stringify(availableRoom)
@@ -104,35 +107,36 @@ export default function (app: Express, sessionHandler: express.RequestHandler) {
                 case 'joinRoom':
                     sessionId = request.session.id;
                     websocketId = request.headers['sec-websocket-key'];
-                    // start(sessionId, websocketId, ws, message.sdpOffer, true, function(error, sdpAnswer) {
-                    //     if (error) {
-                    //         return ws.send(JSON.stringify({
-                    //             id : 'error',
-                    //             message : error
-                    //         }));
-                    //     }
-                    //     ws.send(JSON.stringify({
-                    //         id : 'startResponse',
-                    //         sdpAnswer : sdpAnswer
-                    //     }));
-                    // });
+                    let joinroomId; let joinsdpAnswer;
+                    [joinroomId, joinsdpAnswer] = await joinRoom(websocketId, message.roomId, ws, message.sdpOffer);
+                    if (!joinroomId || !joinsdpAnswer) {
+                        return ws.send(JSON.stringify({
+                            id: 'error',
+                            message: 'Error joining room'
+                        }));
+                    }
+                    ws.send(JSON.stringify({
+                        id: 'joinedRoom',
+                        roomId: joinroomId,
+                        sdpAnswer: joinsdpAnswer
+                    }));
+                    console.log("Room ", JSON.stringify(RoomsManager.getSingleton().getRoom(joinroomId), null, 2))
                     break;
 
                 case 'leaveRoom':
                     sessionId = request.session.id;
                     websocketId = request.headers['sec-websocket-key'];
-                    // start(sessionId, websocketId, ws, message.sdpOffer, true, function(error, sdpAnswer) {
-                    //     if (error) {
-                    //         return ws.send(JSON.stringify({
-                    //             id : 'error',
-                    //             message : error
-                    //         }));
-                    //     }
-                    //     ws.send(JSON.stringify({
-                    //         id : 'startResponse',
-                    //         sdpAnswer : sdpAnswer
-                    //     }));
-                    // });
+                    if (await leaveRoom(websocketId, message.roomId)) {
+                        ws.send(JSON.stringify({
+                            id: 'error',
+                            message: "Error at LeaveRoom"
+                        }));
+                    }
+                    else {
+                        ws.send(JSON.stringify({
+                            id: 'leftRoom',
+                        }));
+                    }
                     break;
 
                 case 'onIceCandidate':

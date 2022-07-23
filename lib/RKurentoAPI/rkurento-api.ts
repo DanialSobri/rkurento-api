@@ -18,7 +18,6 @@ export const getSessions = async (ws_url: string) => {
         let kmsSession: Array<kurento.MediaPipeline> = [];
         serverManager.getPipelines().then(
             _sessions => {
-                console.log("Pipelines Session", _sessions);
                 kmsSession = _sessions;
             })
         return kmsSession;
@@ -27,8 +26,8 @@ export const getSessions = async (ws_url: string) => {
     }
 }
 
-const initMediaElements = async (pipeline: kurento.MediaPipeline): Promise<[kurento.WebRtcEndpoint, 
-        kurento.Composite,kurento.HubPort, kurento.HubPort]> => {
+const initMediaElements = async (pipeline: kurento.MediaPipeline): Promise<[kurento.WebRtcEndpoint,
+    kurento.Composite, kurento.HubPort, kurento.HubPort]> => {
 
     // Create all importants component
     const webRtcEndpoint = await createWebrtcEndpoints(pipeline);

@@ -33,6 +33,7 @@ export default function (app: Express, sessionHandler: express.RequestHandler) {
     })
     const wss = new WebSocketServer({
         server: server,
+        maxPayload: 128 * 1024, // 128 KB
         path: '/rkapi'
     })
 

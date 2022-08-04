@@ -1,8 +1,0 @@
-runtime: nodejs16
-
-env_variables:
-  PORT: 3000
-  SECRET_KEY: 'thisismysecrctekeyfhrgfgrfrty84fwir767'
-  WSPORT: 4040
-  KMSURI: "ws://35.190.197.200:8888/kurento"
-  

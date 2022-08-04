@@ -2,7 +2,7 @@
 FROM node:17-alpine as dependencies
 WORKDIR /app
 COPY package.json .
-RUN npm i
+RUN npm install
 COPY . . 
 # Build production image
 FROM dependencies as builder

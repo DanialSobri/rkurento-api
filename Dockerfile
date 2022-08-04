@@ -1,7 +1,8 @@
 # Build dependencies
-FROM node:17-alpine as dependencies
+FROM node:latest as dependencies
 WORKDIR /app
 COPY package.json .
+RUN npm --version
 RUN npm install
 COPY . . 
 # Build production image

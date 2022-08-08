@@ -21,7 +21,10 @@ WORKDIR /home/node/app
 COPY --chown=node:node package*.json ./
 USER node
 # RUN npm install --save-dev sequelize-cli
-RUN npm install
+RUN node --version
+RUN npm --version
+# RUN npm install -g npm@8.16.0
+RUN npm install --production
 COPY --from=builder /home/node/app/dist ./dist
 
 COPY --chown=node:node .env .

@@ -1,8 +1,6 @@
 import express, { Express, Request, response, Response } from 'express';
 import { WebSocketServer } from 'ws';
-import { createServer } from 'http';
-import { readFileSync } from 'fs';
-import ip from 'ip';
+import { Server } from 'https';
 
 // RKurentoAPI
 import {
@@ -18,19 +16,11 @@ import {
     RoomsManager
 } from './RKurentoAPI/rk-room';
 
-const options =
-{
-    key: process.env.KEY || readFileSync('keys/server.key'),
-    cert: process.env.CRT || readFileSync('keys/server.crt')
-}
-const WSPORT = process.env.WSPORT || 4040;
+
 const KMSURI = process.env.KMSURI || "ws://167.99.255.24:8888/kurento";
 
-export default function (app: Express, sessionHandler: express.RequestHandler) {
+export default function (app: Express, server:Server,sessionHandler: express.RequestHandler) {
 
-    const server = createServer(app).listen(WSPORT, () => {
-        console.log(`Running Websocket on ws://${ip.address()}:${WSPORT}/rkapi ⚡`);
-    })
     const wss = new WebSocketServer({
         server: server,
         maxPayload: 128 * 1024, // 128 KB

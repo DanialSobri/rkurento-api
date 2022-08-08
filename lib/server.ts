@@ -7,6 +7,8 @@ import cookieParser from 'cookie-parser';
 import session from 'express-session';
 import rkwebsocket from './rk-websocket'
 import ip from 'ip';
+import { createServer } from 'https';
+import { readFileSync } from 'fs';
 
 dotenv.config();
 
@@ -29,9 +31,21 @@ app.use(helmet());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-rkwebsocket(app, sessionHandler);
+const options =
+{
+    key: process.env.KEY || readFileSync('keys/key.pem'),
+    cert: process.env.CRT || readFileSync('keys/cert.pem')
+}
+
+const WSPORT = process.env.WSPORT || 4040;
+
+const server = createServer(options,app).listen(WSPORT, () => {
+  console.log(`Running Websocket on wss://${ip.address()}:${WSPORT}/rkapi ⚡`);
+})
+
+rkwebsocket(app, server ,sessionHandler);
 
 app.listen(PORT, () => {
-  console.log(`Running Restful on http://${ip.address()}:${PORT} ⚡`);
+  console.log(`Running Restful on https://${ip.address()}:${PORT} ⚡`);
   routes(app);
 });

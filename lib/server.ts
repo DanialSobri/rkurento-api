@@ -34,19 +34,17 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 const options =
 {
-    key: process.env.KEY || readFileSync('keys/key.pem'),
-    cert: process.env.CRT || readFileSync('keys/cert.pem')
+    key: process.env.KEY || readFileSync('key/server.key'),
+    cert: process.env.CRT || readFileSync('key/server.cert')
 }
 
 const WSPORT = process.env.WSPORT || 4040;
 
 const server = createServer(options,app).listen(WSPORT, () => {
   console.log(`Running Websocket on wss://${ip.address()}:${WSPORT}/rkapi ⚡`);
+  console.log(`Running Restful on https://${ip.address()}:${WSPORT} ⚡`);
+
 })
 
 rkwebsocket(app, server ,sessionHandler);
-
-app.listen(PORT, () => {
-  console.log(`Running Restful on https://${ip.address()}:${PORT} ⚡`);
-  routes(app);
-});
+routes(app);

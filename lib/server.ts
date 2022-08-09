@@ -21,10 +21,11 @@ const app: Express = express();
 const oneDay = 1000 * 60 * 60 * 24
 const sessionHandler = session({
   secret: process.env.SECRET_KEY || 'thisismysecrctekeyfhrgfgrfrty84fwir767',
-  saveUninitialized: true,
+  saveUninitialized: false,
   cookie: { maxAge: oneDay, secure: true },
   resave: false
 })
+app.set('trust proxy', 1) // trust first proxy
 app.use(sessionHandler)
 app.use(cookieParser())
 app.use(helmet());

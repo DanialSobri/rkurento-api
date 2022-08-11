@@ -15,6 +15,7 @@ dotenv.config();
 const PORT = process.env.PORT || 3000;
 const app: Express = express();
 
+process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = "0";
 /*
  * Management of sessions
  */

@@ -12,6 +12,19 @@ import {
     RoomsManager
 } from './rk-room';
 
+export const getStats = async (ws_url: string) => {
+    try {
+        const serverManager = await getServerManager(ws_url);
+        return JSON.stringify({
+            "pipelines": serverManager.getPipelines(),
+            "name": serverManager.getName(),
+            "mem": serverManager.getUsedMemory()
+        });
+    } catch (error) {
+        console.log(error);
+    }
+}
+
 export const getSessions = async (ws_url: string) => {
     try {
         const serverManager = await getServerManager(ws_url);

@@ -29,7 +29,6 @@ COPY --from=builder /home/node/app/dist ./dist
 
 COPY --chown=node:node .env .
 COPY --chown=node:node  /key ./key
-# COPY --chown=node:node  /public ./public
 
 EXPOSE 4040
 CMD [ "node", "dist/server.js" ]

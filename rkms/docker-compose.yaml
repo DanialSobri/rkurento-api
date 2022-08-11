@@ -1,0 +1,15 @@
+version: "3.8"
+services:
+  rkms:
+    container_name: rkms
+    build: .
+    image: eu.gcr.io/remaid/rkurento-mediaserver:0.0.1
+    ports:
+      - 8888:8888
+      - 8433:8433
+      - 5000-5050:5000-5050
+    environment:
+      - "KMS_MIN_PORT=5000"
+      - "KMS_MAX_PORT=5050"
+      - "KMS_EXTERNAL_IPV4=35.190.197.200"
+    network_mode: host

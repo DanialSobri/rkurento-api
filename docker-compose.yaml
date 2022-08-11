@@ -1,0 +1,8 @@
+version: "3.8"
+services:
+  rkclient:
+    build: .
+    image: eu.gcr.io/remaid/rkurento-api:0.0.1
+    ports:
+      - 4040:4040
+    container_name: rkapi

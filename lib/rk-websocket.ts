@@ -17,7 +17,7 @@ import {
 } from './RKurentoAPI/rk-room';
 
 
-const KMSURI = process.env.KMSURI || "ws://167.99.255.24:8888/kurento";
+const KMSURI = process.env.KMSURI || "wss://35.190.197.200:8433/kurento";
 
 export default function (app: Express, server:Server,sessionHandler: express.RequestHandler) {
 

@@ -12,4 +12,3 @@ services:
       - "KMS_MIN_PORT=5000"
       - "KMS_MAX_PORT=5050"
       - "KMS_EXTERNAL_IPV4=35.190.197.200"
-    network_mode: host

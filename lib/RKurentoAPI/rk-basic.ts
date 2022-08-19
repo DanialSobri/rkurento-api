@@ -12,7 +12,7 @@ export const getKurentoClient = async (ws_url: string): Promise<kurento.ClientIn
     if (m_kurentoClient) {
         return m_kurentoClient;
     }
-    m_kurentoClient = await getSingleton(ws_url);
+    m_kurentoClient = await kurento(ws_url);
     return m_kurentoClient;
 }
 

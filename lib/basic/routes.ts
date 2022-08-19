@@ -7,9 +7,9 @@ export default function(app: Express){
 
     // Hello server
     app.get('/', (req: Request, res: Response) => {
-        let myStats = getStats(process.env.KMSURI || "")
-        res.send("<h1>Server Condition!</h1><p>"+myStats+"</p>");
-        // Check if rkms connected
+        res.send("<h1>Server Condition!</h1>\
+          <p>Connect to RKurento MS at \"wss://35.190.197.200:8433/kurento\"⚡</p> \
+        ");
       });
     
 }

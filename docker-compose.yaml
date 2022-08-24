@@ -6,3 +6,4 @@ services:
     ports:
       - 4040:4040
     container_name: rkapi
+    restart: unless-stopped

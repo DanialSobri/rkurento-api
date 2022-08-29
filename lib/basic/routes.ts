@@ -11,5 +11,13 @@ export default function(app: Express){
           <p>Connect to RKurento MS at \"wss://35.190.197.200:8433/kurento\"⚡</p> \
         ");
       });
+
+    app.get('/rklabs/', (req: Request, res: Response) => {
+        getStats('wss://35.190.197.200:8433/kurento').then(stats => {
+          res.send(stats);
+        }).catch(error => {
+          res.send(error);
+        });
+    });
     
 }

@@ -70,12 +70,11 @@ export default function (app: Express, server:Server,sessionHandler: express.Req
                     const availableRoom = RoomsManager.getSingleton().getAllSessions()
                     const sessions = await getSessions(KMSURI)
                     const stats = await getStats(KMSURI)
-                    console.log(sessions)
-                    console.info("Num of Sessions: ", sessions?.length)
                     ws.send(JSON.stringify({
                         id: 'serverStats',
-                        message: ' Rooms:' + JSON.stringify(availableRoom) 
-                        +',Stats:'+ stats 
+                        room: JSON.stringify(availableRoom), 
+                        sessions: JSON.stringify(sessions?.length),
+                        stats: JSON.stringify(stats) 
                     }))
                     break
 

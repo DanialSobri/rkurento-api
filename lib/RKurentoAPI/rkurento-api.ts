@@ -15,14 +15,12 @@ import {
 export const getStats = async (ws_url: string) => {
     try {
         const serverManager = await getServerManager(ws_url);
-        return JSON.stringify({
-            "pipelines":await serverManager.getPipelines(),
-            "name":await serverManager.getName(),
-            "memory":await serverManager.getUsedMemory(),
-            "cpu":await serverManager.getUsedCpu(1000)/16,
-            "cpu_count": await serverManager.getCpuCount()
-
-        });
+        return {
+            memory:await serverManager.getUsedMemory(),
+            cpu:await serverManager.getUsedCpu(1000),
+            cpu_count: (await serverManager.getCpuCount()).length,
+            pipelines: (await serverManager.getPipelines()).length,
+        };
     } catch (error) {
         console.log(error);
     }

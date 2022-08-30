@@ -18,7 +18,7 @@ export const getStats = async (ws_url: string) => {
         return {
             memory:await serverManager.getUsedMemory(),
             cpu:await serverManager.getUsedCpu(1000),
-            cpu_count: (await serverManager.getCpuCount()).length,
+            cpu_count: await serverManager.getCpuCount(),
             pipelines: (await serverManager.getPipelines()).length,
         };
     } catch (error) {

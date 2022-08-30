@@ -15,7 +15,6 @@ import {
 export const getStats = async (ws_url: string) => {
     try {
         const serverManager = await getServerManager(ws_url);
-        let cpu_count = await serverManager.getCpuCount()
         return JSON.stringify({
             "pipelines":await serverManager.getPipelines(),
             "name":await serverManager.getName(),

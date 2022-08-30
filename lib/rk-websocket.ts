@@ -4,7 +4,8 @@ import { Server } from 'https';
 
 // RKurentoAPI
 import {
-    getSessions
+    getSessions,
+    getStats
 } from './RKurentoAPI/rkurento-api'
 import {
     createRoom,
@@ -68,11 +69,13 @@ export default function (app: Express, server:Server,sessionHandler: express.Req
                 case 'stats':
                     const availableRoom = RoomsManager.getSingleton().getAllSessions()
                     const sessions = await getSessions(KMSURI)
+                    const stats = await getStats(KMSURI)
                     console.log(sessions)
                     console.info("Num of Sessions: ", sessions?.length)
                     ws.send(JSON.stringify({
                         id: 'serverStats',
-                        message: ' Rooms:' + JSON.stringify(availableRoom)
+                        message: ' Rooms:' + JSON.stringify(availableRoom) 
+                        +',Stats:'+ stats 
                     }))
                     break
 

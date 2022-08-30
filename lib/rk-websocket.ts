@@ -1,6 +1,6 @@
 import express, { Express, Request, response, Response } from 'express';
 import { WebSocketServer } from 'ws';
-import { Server } from 'https';
+import { Server } from 'http';
 
 // RKurentoAPI
 import {

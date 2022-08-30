@@ -7,7 +7,7 @@ import cookieParser from 'cookie-parser';
 import session from 'express-session';
 import rkwebsocket from './rk-websocket'
 import ip from 'ip';
-import { createServer } from 'https';
+import { createServer } from 'http';
 import { readFileSync } from 'fs';
 
 dotenv.config();
@@ -41,7 +41,7 @@ const options =
 
 const WSPORT = process.env.WSPORT || 4040;
 
-const server = createServer(options,app).listen(WSPORT, () => {
+const server = createServer(app).listen(WSPORT, () => {
   console.log(`Running Websocket on wss://${ip.address()}:${WSPORT}/rkapi ⚡`);
   console.log(`Running Restful on https://${ip.address()}:${WSPORT} ⚡`);
   console.log(`Running RKMS Websocket on ${process.env.KMSURI} ⚡`);

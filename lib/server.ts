@@ -48,6 +48,6 @@ const server = createServer(options,app).listen(WSPORT, () => {
 })
 
 rkwebsocket(app, server ,sessionHandler);
-routes(app);
+// routes(app);
 
 // Check if connected

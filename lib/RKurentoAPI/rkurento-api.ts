@@ -64,7 +64,7 @@ const initMediaElements = async (pipeline: kurento.MediaPipeline): Promise<[kure
     // Create all importants component
     const webRtcEndpoint = await createWebrtcEndpoints(pipeline);
     await webRtcEndpoint.setMinVideoSendBandwidth(1000);
-    await webRtcEndpoint.setMaxVideoSendBandwidth(2000);
+    await webRtcEndpoint.setMaxVideoSendBandwidth(8000);
     const compositeHub = await createComposite(pipeline);
     const outputVideoPort = await compositeHub.createHubPort();
     const outputAudioPort = await compositeHub.createHubPort();

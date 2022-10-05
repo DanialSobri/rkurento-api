@@ -39,12 +39,11 @@ export default function (app: Express, server:Server,sessionHandler: express.Req
         // Apply session handling
         sessionHandler(req, res, function () {
             sessionId = req.session.id
-            console.log('Connection received with sessionId ' + sessionId)
             websocketId = req.headers['sec-websocket-key']
         })
 
         ws.on('error', function (error) {
-            console.log('Connection ' + sessionId + ' error');
+            console.error('Connection ' + sessionId + ' error');
             // stop(sessionId, websocketId)
         })
 
@@ -55,7 +54,6 @@ export default function (app: Express, server:Server,sessionHandler: express.Req
 
         ws.on('message', async function (_message: string) {
             const message = JSON.parse(_message)
-            console.log('Connection ' + sessionId + ' received message ' + message.id);
 
             switch (message.id) {
                 case 'ping':
@@ -94,7 +92,7 @@ export default function (app: Express, server:Server,sessionHandler: express.Req
                         roomId: roomId,
                         sdpAnswer: sdpAnswer
                     }));
-                    console.log("Room ", JSON.stringify(RoomsManager.getSingleton().getRoom(roomId), null, 2))
+                    // console.log("Room ", JSON.stringify(RoomsManager.getSingleton().getRoom(roomId), null, 2))
                     break;
 
                 case 'joinRoom':
@@ -113,7 +111,7 @@ export default function (app: Express, server:Server,sessionHandler: express.Req
                         roomId: joinroomId,
                         sdpAnswer: joinsdpAnswer
                     }));
-                    console.log("Room ", JSON.stringify(RoomsManager.getSingleton().getRoom(joinroomId), null, 2))
+                    // console.log("Room ", JSON.stringify(RoomsManager.getSingleton().getRoom(joinroomId), null, 2))
                     break;
 
                 case 'leaveRoom':
@@ -133,7 +131,7 @@ export default function (app: Express, server:Server,sessionHandler: express.Req
                     break;
 
                 case 'onIceCandidate':
-                    console.log("Register collected Ice for sessionId: ", sessionId, " , ws: ", websocketId)
+                    // console.log("Register collected Ice for sessionId: ", sessionId, " , ws: ", websocketId)
                     onIceCandidate(message.roomId, websocketId, message.candidate);
                     break;
 

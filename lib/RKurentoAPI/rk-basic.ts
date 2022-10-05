@@ -1,18 +1,24 @@
 // rk-basic.js
 // Defining basic implementation of Kurento-Client modules
 // Philosophy using async instead of callback spaghetti code 
-import kurento, { getSingleton } from 'kurento-client';
+import kurento, { getSingleton ,Options} from 'kurento-client';
 
 /*
  * Definition of global variables.
  */
 export let m_kurentoClient: kurento.ClientInstance;
 
+// kurentoCLient Option
+const kurentoClientOption:Options = {
+    response_timeout : 30000,
+    request_timeout : 20000
+}
+
 export const getKurentoClient = async (ws_url: string): Promise<kurento.ClientInstance> => {
     if (m_kurentoClient) {
         return m_kurentoClient;
     }
-    m_kurentoClient = await kurento(ws_url);
+    m_kurentoClient = await kurento(ws_url,kurentoClientOption);
     return m_kurentoClient;
 }
 

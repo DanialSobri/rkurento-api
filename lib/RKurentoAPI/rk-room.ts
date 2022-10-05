@@ -134,6 +134,16 @@ export class RoomsManager {
     )
     return myParticipant;
   }
+  
+  /**
+   * ### getParticipants
+   * Return participants from roomID in an Array
+   */
+   public getParticipants(roomId: string | undefined): Participant[] | undefined {
+    // Return room with entered Id
+    const myRoom = this.getRoom(roomId);
+    return myRoom?.participants
+  }
 
   /**
    * ### getIceCandidates

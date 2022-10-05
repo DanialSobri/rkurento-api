@@ -1,6 +1,6 @@
 version: "3.3"
 services:
-  rkclient:
+  rkapi:
     build: .
     image: eu.gcr.io/remaid/rkurento-api:0.0.1
     ports:

@@ -141,9 +141,14 @@ export const joinRoom = async (websocketId: string, roomId: string, ws?: WebSock
         let webRtcEndpoint;
 
         if (pipeline && compositeHub) {
-            console.info("Join Room :", room.id);
             webRtcEndpoint = await createMediaElement(pipeline, compositeHub);
             roomsManager.updateParticipants(roomId, websocketId, webRtcEndpoint);
+            console.info(roomsManager.getParticipants(room.id)?.length,"Join Room :", room.id);
+            ws?.send(JSON.stringify({
+                id: 'roomStatus',
+                roomId: room.Id,
+                participants: roomsManager.getParticipants(room.id)?.length
+            }));
         }
 
         if (roomId && websocketId && webRtcEndpoint) {

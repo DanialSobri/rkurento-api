@@ -1,4 +1,4 @@
-FROM kurento/kurento-media-server:6.16
+FROM kurento/kurento-media-server:6.18.0
 
 # Copy configuration files
 COPY config/kurento.conf.json /etc/kurento/kurento.conf.json

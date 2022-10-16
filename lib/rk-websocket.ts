@@ -98,13 +98,19 @@ export default function (app: Express, server:Server,sessionHandler: express.Req
                 case 'joinRoom':
                     sessionId = request.session.id;
                     websocketId = request.headers['sec-websocket-key'];
-                    let joinroomId; let joinsdpAnswer;
+                    let joinroomId; let joinsdpAnswer; let retry = 0;
                     [joinroomId, joinsdpAnswer] = await joinRoom(websocketId, message.roomId, ws, message.sdpOffer);
-                    if (!joinroomId || !joinsdpAnswer) {
-                        return ws.send(JSON.stringify({
-                            id: 'error',
-                            message: 'Error joining room'
-                        }));
+
+                    while (!joinroomId || !joinsdpAnswer) {
+                        [joinroomId, joinsdpAnswer] = await joinRoom(websocketId, message.roomId, ws, message.sdpOffer);
+                        console.log("Error join room, retry",retry)
+                        retry ++;
+                        if (retry == 3){
+                            return ws.send(JSON.stringify({
+                                id: 'error',
+                                message: 'Error joining room'
+                            }));
+                        }
                     }
                     ws.send(JSON.stringify({
                         id: 'joinedRoom',
@@ -135,12 +141,12 @@ export default function (app: Express, server:Server,sessionHandler: express.Req
                     onIceCandidate(message.roomId, websocketId, message.candidate);
                     break;
 
-                default:
-                    ws.send(JSON.stringify({
-                        id: 'error',
-                        message: 'Invalid message ' + message
-                    }))
-                    break
+                // default:
+                //     ws.send(JSON.stringify({
+                //         id: 'error',
+                //         message: 'Invalid message ' + message
+                //     }))
+                //     break
             }
         })
     })

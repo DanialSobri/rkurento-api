@@ -79,6 +79,7 @@ export default function (app: Express, server:Server,sessionHandler: express.Req
                 case 'createRoom':
                     sessionId = request.session.id;
                     websocketId = request.headers['sec-websocket-key'];
+                    console.debug("CreateRoom")
                     let roomId; let sdpAnswer;
                     [roomId, sdpAnswer] = await createRoom(KMSURI, websocketId, ws, message.sdpOffer)
                     if (!roomId) {
@@ -87,6 +88,7 @@ export default function (app: Express, server:Server,sessionHandler: express.Req
                             message: 'Error creating room'
                         }));
                     }
+                    console.debug("Sucessfully CreateRoom : ",roomId)
                     ws.send(JSON.stringify({
                         id: 'createdRoom',
                         roomId: roomId,
@@ -98,6 +100,7 @@ export default function (app: Express, server:Server,sessionHandler: express.Req
                 case 'joinRoom':
                     sessionId = request.session.id;
                     websocketId = request.headers['sec-websocket-key'];
+                    console.debug("joinRoom")
                     let joinroomId; let joinsdpAnswer; let retry = 0;
                     [joinroomId, joinsdpAnswer] = await joinRoom(websocketId, message.roomId, ws, message.sdpOffer);
 
@@ -123,6 +126,7 @@ export default function (app: Express, server:Server,sessionHandler: express.Req
                 case 'leaveRoom':
                     sessionId = request.session.id;
                     websocketId = request.headers['sec-websocket-key'];
+                    console.debug("leaveRoom")                    
                     if (await leaveRoom(websocketId, message.roomId)) {
                         ws.send(JSON.stringify({
                             id: 'error',

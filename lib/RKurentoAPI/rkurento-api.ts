@@ -22,7 +22,7 @@ export const getStats = async (ws_url: string) => {
             pipelines: (await serverManager.getPipelines()).length,
         };
     } catch (error) {
-        console.log(error);
+        console.warn(error);
     }
 }
 
@@ -31,7 +31,7 @@ export const getSessions = async (ws_url: string) => {
         const serverManager = await getServerManager(ws_url);
         return serverManager.getPipelines();
     } catch (error) {
-        console.log(error);
+        console.warn(error);
     }
 }
 
@@ -53,7 +53,7 @@ const createMediaElement = async (pipeline: kurento.MediaPipeline, compositeHub:
         await outputAudioPort.connect(webRtcEndpoint, 'AUDIO');
     }
     else{
-        console.log("Error connect elements")
+        console.warn("Error connect elements")
     }
 
     return webRtcEndpoint
@@ -83,7 +83,7 @@ const initMediaElements = async (pipeline: kurento.MediaPipeline): Promise<[kure
 
     } catch (error) {
         pipeline.release();
-        console.log(error);
+        console.warn(error);
     } finally {
         return [webRtcEndpoint, compositeHub, outputVideoPort, outputAudioPort];
     }
@@ -115,6 +115,7 @@ export const createRoom = async (ws_url: string, websocketId: string, ws?: WebSo
             if (ws) {
                 webRtcEndpoint.on('OnIceCandidate', function (event) {
                     let candidate = kurento.getComplexType('IceCandidate')(event.candidate);
+                    console.debug("Debug: iceExch to client",candidate.candidate)
                     ws.send(JSON.stringify({
                         id: 'iceCandidate',
                         candidate: candidate
@@ -128,7 +129,7 @@ export const createRoom = async (ws_url: string, websocketId: string, ws?: WebSo
         return [roomId, sdpAnswer];
 
     } catch (error) {
-        console.log(error);
+        console.warn(error);
         pipeline.release();
         return [undefined, undefined];
     }
@@ -157,9 +158,8 @@ export const joinRoom = async (websocketId: string, roomId: string, ws?: WebSock
             // Add available IceCandidates
             let candidatesQueue = roomsManager.getIceCandidatesQueue(roomId, websocketId);
             if (candidatesQueue) {
-                console.log("Add iceCan",candidatesQueue.length)
+                console.debug("Debug : Add iceCan",candidatesQueue.length)
                 while (candidatesQueue.length) {
-                    console.info(JSON.stringify(candidatesQueue, null, 2));
                     var candidate = candidatesQueue.shift();
                     if (candidate) {
                         webRtcEndpoint.addIceCandidate(candidate);
@@ -170,6 +170,7 @@ export const joinRoom = async (websocketId: string, roomId: string, ws?: WebSock
             if (ws) {
                 webRtcEndpoint.on('OnIceCandidate', function (event) {
                     let candidate = kurento.getComplexType('IceCandidate')(event.candidate);
+                    console.debug("Debug: iceExch to client",candidate.candidate)
                     if (candidate == null){
                         console.debug("candidate",candidate, "is null")
                     }
@@ -198,7 +199,7 @@ export const leaveRoom = async (websocketId: string, roomId: string) => {
     const room = roomsManager.getRoom(roomId);
     const participant = roomsManager.getParticipant(roomId, websocketId);
     if (participant && room?.participants) {
-        console.log('Removing user from MCU [ ' + roomId + ', ' + websocketId + ' ]');
+        console.debug('Removing user from MCU [ ' + roomId + ', ' + websocketId + ' ]');
         // Release participant media elements
         const webRtcEndpoint = participant?.webRtcEndpoint?.release();
         // Delete participant data
@@ -208,7 +209,7 @@ export const leaveRoom = async (websocketId: string, roomId: string) => {
         if (room?.participants.length === 0) {
             room.compositeHub?.release();
             room.mediaPipeline?.release();
-            console.log('Removing MediaPipeline and Composite...');
+            console.debug('Removing MediaPipeline and Composite...');
             // Delete room from array
             roomsManager.getAllSessions().splice(roomsManager.getAllSessions().indexOf(room), 1);
             roomsManager.getAllSessions();
@@ -222,6 +223,7 @@ export async function onIceCandidate(roomId: string, websocketId: string, _candi
     const roomsManager = RoomsManager.getSingleton();
     const candidate = kurento.getComplexType('IceCandidate')(_candidate);
     const room = roomsManager.getRoom(roomId);
+    console.debug("Debug: iceExch from client",candidate.candidate,roomId, websocketId)
     const participant = roomsManager.getParticipant(roomId, websocketId);
     if (participant) {
         participant.webRtcEndpoint?.addIceCandidate(candidate);

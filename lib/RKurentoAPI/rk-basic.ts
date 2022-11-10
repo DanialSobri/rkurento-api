@@ -11,14 +11,14 @@ export let m_kurentoClient: kurento.ClientInstance;
 // kurentoCLient Option
 const kurentoClientOption:Options = {
     response_timeout : 30000,
-    request_timeout : 20000
+    request_timeout : 50000
 }
 
 export const getKurentoClient = async (ws_url: string): Promise<kurento.ClientInstance> => {
     if (m_kurentoClient) {
         return m_kurentoClient;
     }
-    m_kurentoClient = await kurento(ws_url,kurentoClientOption);
+    m_kurentoClient = await getSingleton(ws_url,kurentoClientOption);
     return m_kurentoClient;
 }
 

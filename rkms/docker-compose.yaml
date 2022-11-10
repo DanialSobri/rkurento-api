@@ -9,8 +9,8 @@ services:
       - 8433:8433/tcp
       - 5000-5050:5000-5050/udp
     environment:
-      - "KMS_MIN_PORT=5000"
-      - "KMS_MAX_PORT=5050"
+      - "KMS_MIN_PORT=50000"
+      - "KMS_MAX_PORT=50100"
       - "KMS_EXTERNAL_IPV4=35.190.197.200"
       - GST_DEBUG=1,Kurento*:1
     restart: unless-stopped

@@ -2,7 +2,7 @@
 import kurento from 'kurento-client';
 import { nanoid } from 'nanoid';
 
-interface Session {
+interface Room {
   id: string;
   mediaPipeline?: kurento.MediaPipeline;
   participants?: Participant[];
@@ -14,6 +14,7 @@ interface Participant {
   wsid?: string;
   webRtcEndpoint?: kurento.WebRtcEndpoint;
   candidatesQueue?: RTCIceCandidate[];
+  [key: string]: any; // extandable
 }
 
 /**
@@ -22,7 +23,7 @@ interface Participant {
  */
 export class RoomsManager {
   private static instance: RoomsManager;
-  private static sessions: Session[] = [];
+  private static rooms: Room[] = [];
 
   /**
    * The RoomsManager's constructor should always be private to prevent direct
@@ -49,7 +50,7 @@ export class RoomsManager {
    */
   public getAllSessions() {
     // Return all active session
-    return RoomsManager.sessions
+    return RoomsManager.rooms
   }
 
   /**
@@ -64,7 +65,7 @@ export class RoomsManager {
     // Register new room
     const roomId = nanoid(5);
     // Update Array with basic media object
-    RoomsManager.sessions.push({
+    RoomsManager.rooms.push({
       id: roomId,
       mediaPipeline: pipeline,
       compositeHub: compositeHub,
@@ -74,6 +75,24 @@ export class RoomsManager {
     })
     // Update participants endpoints
     this.updateParticipants(roomId, websocketId, webRtcEndpoint)
+    return roomId;
+  }
+
+  public registerRoomP2P(wsId: string, sdpAnswer?: string, sdpOffer?: string) {
+    // Register new room
+    const roomId = nanoid(5);
+    // Update Array with basic media object
+    RoomsManager.rooms.push({
+      id: roomId,
+      participants: []
+    })
+    // Update participants endpoints
+    this.getRoom(roomId)?.participants?.push({
+      wsid: wsId,
+      sdpAnswer: sdpAnswer, 
+      sdpOffer: sdpOffer,
+      candidatesQueue: []
+    })
     return roomId;
   }
 
@@ -100,10 +119,10 @@ export class RoomsManager {
    */
   public updateIceCandidateQueue(roomId: string, wsid: string, iceCandidate: RTCIceCandidate) {
     // Return all active session
-    // console.info("Get Session", RoomsManager.sessions)
+    // console.info("Get Room", RoomsManager.rooms)
     const participant = this.getParticipant(roomId, wsid);
     participant?.candidatesQueue?.push(iceCandidate)
-    return RoomsManager.sessions
+    return RoomsManager.rooms
   }
 
   /**
@@ -112,7 +131,7 @@ export class RoomsManager {
    */
   public getRoom(roomId: string | undefined) {
     // Return room with entered Id
-    const result = RoomsManager.sessions.find(
+    const result = RoomsManager.rooms.find(
       room => {
         return room.id === roomId
       }

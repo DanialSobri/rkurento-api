@@ -10,7 +10,6 @@ const dotenv_1 = __importDefault(require("dotenv"));
 const cookie_parser_1 = __importDefault(require("cookie-parser"));
 const express_session_1 = __importDefault(require("express-session"));
 const rk_websocket_1 = __importDefault(require("./rk-websocket"));
-const ip_1 = __importDefault(require("ip"));
 const https_1 = require("https");
 const fs_1 = require("fs");
 dotenv_1.default.config();
@@ -39,10 +38,6 @@ const options = {
 };
 const WSPORT = process.env.WSPORT || 4040;
 const server = (0, https_1.createServer)(options, app).listen(WSPORT, () => {
-    console.log(`Running Websocket on wss://${ip_1.default.address()}:${WSPORT}/rkapi ⚡`);
-    console.log(`Running Restful on https://${ip_1.default.address()}:${WSPORT} ⚡`);
-    console.log(`Running RKMS Websocket on ${process.env.KMSURI} ⚡`);
+    console.log(`Running RKMS Websocket ⚡`);
 });
 (0, rk_websocket_1.default)(app, server, sessionHandler);
-// routes(app);
-// Check if connected

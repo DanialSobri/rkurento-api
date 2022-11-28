@@ -42,12 +42,8 @@ const options =
 const WSPORT = process.env.WSPORT || 4040;
 
 const server = createServer(options,app).listen(WSPORT, () => {
-  console.log(`Running Websocket on wss://${ip.address()}:${WSPORT}/rkapi ⚡`);
-  console.log(`Running Restful on https://${ip.address()}:${WSPORT} ⚡`);
-  console.log(`Running RKMS Websocket on ${process.env.KMSURI} ⚡`);
+  console.log(`Running RKMS Websocket ⚡`);
 })
 
 rkwebsocket(app, server ,sessionHandler);
-// routes(app);
 
-// Check if connected

@@ -11,13 +11,19 @@ import {
 import {
     RoomsManager
 } from './rk-room';
+import {
+    createP2PRoom,
+    createMCURoom,
+    joinP2PRoom,
+    joinMCURoom,
+} from './rk-strategies';
 
 export const getStats = async (ws_url: string) => {
     try {
         const serverManager = await getServerManager(ws_url);
         return {
-            memory:await serverManager.getUsedMemory(),
-            cpu:await serverManager.getUsedCpu(1000),
+            memory: await serverManager.getUsedMemory(),
+            cpu: await serverManager.getUsedCpu(1000),
             cpu_count: await serverManager.getCpuCount(),
             pipelines: (await serverManager.getPipelines()).length,
         };
@@ -35,165 +41,53 @@ export const getSessions = async (ws_url: string) => {
     }
 }
 
-const createMediaElement = async (pipeline: kurento.MediaPipeline, compositeHub: kurento.Composite):
-    Promise<kurento.WebRtcEndpoint> => {
-
-    // Create all importants component
-    const webRtcEndpoint = await createWebrtcEndpoints(pipeline);
-    await webRtcEndpoint.setMinVideoSendBandwidth(1000);
-    await webRtcEndpoint.setMaxVideoSendBandwidth(8000);
-    const outputVideoPort = await compositeHub.createHubPort();
-    const outputAudioPort = await compositeHub.createHubPort();
-
-    if (webRtcEndpoint && outputVideoPort && outputAudioPort){
-        // Connect all Media Elements
-        await webRtcEndpoint.connect(outputVideoPort, 'VIDEO');
-        await outputVideoPort.connect(webRtcEndpoint, 'VIDEO');
-        await webRtcEndpoint.connect(outputAudioPort, 'AUDIO');
-        await outputAudioPort.connect(webRtcEndpoint, 'AUDIO');
-    }
-    else{
-        console.warn("Error connect elements")
-    }
-
-    return webRtcEndpoint
-}
-
-function mcuMediaElements() {
-    // Init important media elements (composite hub)
-    
-}
-const initMediaElements = async (pipeline: kurento.MediaPipeline): Promise<[kurento.WebRtcEndpoint,
-    kurento.Composite, kurento.HubPort, kurento.HubPort]> => {
-
-    // Create all importants component
-    const webRtcEndpoint = await createWebrtcEndpoints(pipeline);
-    await webRtcEndpoint.setMinVideoSendBandwidth(1000);
-    await webRtcEndpoint.setMaxVideoSendBandwidth(8000);
-    const compositeHub = await createComposite(pipeline);
-    const outputVideoPort = await compositeHub.createHubPort();
-    const outputAudioPort = await compositeHub.createHubPort();
-
-    try {
-        // Connect all Media Elements
-        webRtcEndpoint.connect(outputVideoPort, 'VIDEO');
-        outputVideoPort.connect(webRtcEndpoint, 'VIDEO');
-        webRtcEndpoint.connect(outputAudioPort, 'AUDIO');
-        outputAudioPort.connect(webRtcEndpoint, 'AUDIO');
-
-    } catch (error) {
-        pipeline.release();
-        console.warn(error);
-    } finally {
-        return [webRtcEndpoint, compositeHub, outputVideoPort, outputAudioPort];
-    }
-}
-
-export const createRoom = async (ws_url: string, websocketId: string, ws?: WebSocket, sdpOffer?: string): Promise<[string | undefined, string | undefined]> => {
-    // Initialize pipeline
-    const pipeline = await createMediaPipeline(ws_url);
-    try {
-        // Create Room with given pipeline ID
-        const roomsManager = RoomsManager.getSingleton();
-        const [webRtcEndpoint, compositeHub, outputAudioPort, outputVideoPort] = await initMediaElements(pipeline);
-        const roomId = roomsManager.registerRoom(pipeline, websocketId, webRtcEndpoint, compositeHub, outputAudioPort, outputVideoPort);
-        let sdpAnswer = "";
-
-        if (roomId && websocketId) {
-            // Add available IceCandidates
-            let candidatesQueue = roomsManager.getIceCandidatesQueue(roomId, websocketId);
-            if (candidatesQueue) {
-                while (candidatesQueue.length) {
-                    console.info(JSON.stringify(candidatesQueue, null, 2));
-                    var candidate = candidatesQueue.shift();
-                    if (candidate) {
-                        webRtcEndpoint.addIceCandidate(candidate);
-                    };
-                }
-            }
-            // OnIceCandidate Event
-            if (ws) {
-                webRtcEndpoint.on('OnIceCandidate', function (event) {
-                    let candidate = kurento.getComplexType('IceCandidate')(event.candidate);
-                    console.debug("Debug: iceExch to client",candidate.candidate)
-                    ws.send(JSON.stringify({
-                        id: 'iceCandidate',
-                        candidate: candidate
-                    }));
-                });
-                sdpAnswer = await webRtcEndpoint.processOffer(sdpOffer!);
-                webRtcEndpoint.gatherCandidates().catch(error => { return error });
-            }
-
+export const createRoom = async (ws_url: string, websocketId: string, ws?: WebSocket, sdpOffer?: string, strategy?: string): Promise<[string | undefined, string | undefined]> => {
+    let roomId, sdpAnswer;
+    switch (strategy) {
+        case "p2p": {
+            //statements;
+            console.debug("Create P2P Room");
+            [roomId, sdpAnswer] = createP2PRoom(websocketId, ws, sdpOffer);
+            break;
         }
-        return [roomId, sdpAnswer];
-
-    } catch (error) {
-        console.warn(error);
-        pipeline.release();
-        return [undefined, undefined];
-    }
-}
-
-//
-export const joinRoom = async (websocketId: string, roomId: string, ws?: WebSocket, sdpOffer?: string): Promise<[string | undefined, string | undefined]> => {
-    try {
-        // Get Room with given ID
-        const roomsManager = RoomsManager.getSingleton();
-        const room = roomsManager.getRoom(roomId);
-        const pipeline = room?.mediaPipeline;
-        const compositeHub = room?.compositeHub;
-        let sdpAnswer = "";
-        let webRtcEndpoint;
-
-        // Check server connection, if not connected, connect it again
-        if (pipeline && compositeHub) {
-            webRtcEndpoint = await createMediaElement(pipeline, compositeHub);
-            roomsManager.updateParticipants(roomId, websocketId, webRtcEndpoint);
-            console.debug(roomsManager.getParticipants(room?.id)?.length,"Join Room :", room?.id);
-
-        } 
-
-        if (roomId && websocketId && webRtcEndpoint) {
-            // Add available IceCandidates
-            let candidatesQueue = roomsManager.getIceCandidatesQueue(roomId, websocketId);
-            if (candidatesQueue) {
-                console.debug("Debug : Add iceCan",candidatesQueue.length)
-                while (candidatesQueue.length) {
-                    var candidate = candidatesQueue.shift();
-                    if (candidate) {
-                        webRtcEndpoint.addIceCandidate(candidate);
-                    };
-                }
-            }
-            // OnIceCandidate Event
-            if (ws) {
-                webRtcEndpoint.on('OnIceCandidate', function (event) {
-                    let candidate = kurento.getComplexType('IceCandidate')(event.candidate);
-                    console.debug("Debug: iceExch to client",candidate.candidate)
-                    if (candidate == null){
-                        console.debug("candidate",candidate, "is null")
-                    }
-                    if (candidate){
-                        ws.send(JSON.stringify({
-                            id: 'iceCandidate',
-                            candidate: candidate
-                        }));
-                    }
-                });
-                sdpAnswer = await webRtcEndpoint.processOffer(sdpOffer!);
-                webRtcEndpoint.gatherCandidates().catch(error => { return error });
-            }
+        case "mcu": {
+            //statements; 
+            console.debug("Create MCU Room");
+            [roomId, sdpAnswer] = await createMCURoom(ws_url, websocketId, ws, sdpOffer);
+            break;
         }
-        return [roomId, sdpAnswer];
-
-    } catch (error) {
-        console.info("Join Room",error);
-        return [undefined, undefined];
+        default: {
+            //statements; 
+            break;
+        }
     }
+    return [roomId, sdpAnswer];
 }
 
-// stop(sessionId, websocketId);
+export const joinRoom = async (websocketId: string, roomId: string, ws: WebSocket, sdpOffer?: string, strategy?: string): Promise<[string | undefined, string | undefined]> => {
+    let status;
+    let sdpAnswer;
+    switch (strategy) {
+        case "p2p": {
+            //statements;
+            console.debug("Join P2P Room");
+            [status] = joinP2PRoom(websocketId, ws, sdpOffer, roomId);
+            break;
+        }
+        case "mcu": {
+            //statements; 
+            console.debug("Create MCU Room");
+            [sdpAnswer] = await joinMCURoom(websocketId, ws, roomId, sdpOffer);
+            break;
+        }
+        default: {
+            //statements; 
+            break;
+        }
+    }
+    return [roomId, sdpAnswer];
+}
+
 export const leaveRoom = async (websocketId: string, roomId: string) => {
     const roomsManager = RoomsManager.getSingleton();
     const room = roomsManager.getRoom(roomId);
@@ -223,7 +117,7 @@ export async function onIceCandidate(roomId: string, websocketId: string, _candi
     const roomsManager = RoomsManager.getSingleton();
     const candidate = kurento.getComplexType('IceCandidate')(_candidate);
     const room = roomsManager.getRoom(roomId);
-    console.debug("Debug: iceExch from client",candidate.candidate,roomId, websocketId)
+    console.debug("Debug: iceExch from client", candidate.candidate, roomId, websocketId)
     const participant = roomsManager.getParticipant(roomId, websocketId);
     if (participant) {
         participant.webRtcEndpoint?.addIceCandidate(candidate);
@@ -231,7 +125,7 @@ export async function onIceCandidate(roomId: string, websocketId: string, _candi
     else {
         roomsManager.updateIceCandidateQueue(roomId, websocketId, candidate);
     }
-    
+
 }
 
 process.on("SIGINT", () => {

@@ -79,9 +79,9 @@ export default function (app: Express, server:Server,sessionHandler: express.Req
                 case 'createRoom':
                     sessionId = request.session.id;
                     websocketId = request.headers['sec-websocket-key'];
-                    console.debug("CreateRoom")
+                    console.debug("CreateRoom");
                     let roomId; let sdpAnswer;
-                    [roomId, sdpAnswer] = await createRoom(KMSURI, websocketId, ws, message.sdpOffer)
+                    [roomId, sdpAnswer] = await createRoom(KMSURI, websocketId, ws, message.sdpOffer,"mcu");
                     if (!roomId) {
                         return ws.send(JSON.stringify({
                             id: 'error',
@@ -100,27 +100,15 @@ export default function (app: Express, server:Server,sessionHandler: express.Req
                 case 'joinRoom':
                     sessionId = request.session.id;
                     websocketId = request.headers['sec-websocket-key'];
-                    console.debug("joinRoom")
-                    let joinroomId; let joinsdpAnswer; let retry = 0;
-                    [joinroomId, joinsdpAnswer] = await joinRoom(websocketId, message.roomId, ws, message.sdpOffer);
+                    console.debug("joinRoom");
+                    let joinroomId; let joinsdpAnswer;
+                    [joinroomId, joinsdpAnswer] = await joinRoom(websocketId, message.roomId, ws, message.sdpOffer,"mcu");
 
-                    while (!joinroomId || !joinsdpAnswer) {
-                        [joinroomId, joinsdpAnswer] = await joinRoom(websocketId, message.roomId, ws, message.sdpOffer);
-                        console.log("Error join room, retry",retry)
-                        retry ++;
-                        if (retry == 3){
-                            return ws.send(JSON.stringify({
-                                id: 'error',
-                                message: 'Error joining room'
-                            }));
-                        }
-                    }
                     ws.send(JSON.stringify({
                         id: 'joinedRoom',
                         roomId: joinroomId,
                         sdpAnswer: joinsdpAnswer
                     }));
-                    // console.log("Room ", JSON.stringify(RoomsManager.getSingleton().getRoom(joinroomId), null, 2))
                     break;
 
                 case 'leaveRoom':

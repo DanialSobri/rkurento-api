@@ -31,4 +31,4 @@ COPY --chown=node:node .env .
 COPY --chown=node:node  /key ./key
 
 EXPOSE 4040
-CMD [ "node", "dist/server.js" ]
+# CMD [ "node", "dist/server.js" ]

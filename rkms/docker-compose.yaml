@@ -11,6 +11,6 @@ services:
     environment:
       - "KMS_MIN_PORT=50000"
       - "KMS_MAX_PORT=50100"
-      - "KMS_EXTERNAL_IPV4=35.190.197.200"
+      # - "KMS_EXTERNAL_IPV4=35.190.197.200"
       - GST_DEBUG=1,Kurento*:1
     restart: unless-stopped

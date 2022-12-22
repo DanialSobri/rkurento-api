@@ -5,6 +5,7 @@
   "main": "lib/server.js",
   "scripts": {
     "build": "rimraf dist && tsc",
+    "postinstall": "cd public && bower install",
     "preserve": "npm run build",
     "dev": "cross-env NODE_ENV=development concurrently \"tsc --watch\" \"nodemon -q dist/server.js\" > app.log 2>&1 ",
     "start": "cross-env NODE_ENV=production node dist/server.js",
@@ -26,10 +27,11 @@
     "https": "^1.0.0",
     "ip": "^1.1.8",
     "kurento-client": "^6.16.0",
+    "material-components-web": "^14.0.0",
     "mongoose": "^6.4.0",
     "nanoid": "^3.3.4",
     "rimraf": "^3.0.2",
-    "ws": "^8.8.1"
+    "ws": "^8.11.0"
   },
   "devDependencies": {
     "@types/body-parser": "^1.19.2",

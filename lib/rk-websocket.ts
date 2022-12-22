@@ -20,7 +20,7 @@ import {
 
 const KMSURI = process.env.KMSURI || "wss://35.190.197.200:8433/kurento";
 
-export default function (app: Express, server:Server,sessionHandler: express.RequestHandler) {
+export default function ( server:Server) {
 
     const wss = new WebSocketServer({
         server: server,
@@ -37,10 +37,10 @@ export default function (app: Express, server:Server,sessionHandler: express.Req
         const req = request;
         let res: Response = response.writeHead(200, {});
         // Apply session handling
-        sessionHandler(req, res, function () {
-            sessionId = req.session.id
-            websocketId = req.headers['sec-websocket-key']
-        })
+        // sessionHandler(req, res, function () {
+        //     sessionId = req.session.id
+        //     websocketId = req.headers['sec-websocket-key']
+        // })
 
         ws.on('error', function (error) {
             console.error('Connection ' + sessionId + ' error');
@@ -53,15 +53,13 @@ export default function (app: Express, server:Server,sessionHandler: express.Req
         })
 
         ws.on('message', async function (_message: string) {
-            const message = JSON.parse(_message)
+            console.log(_message.toString())
+            const message = JSON.parse(_message.toString())
 
             switch (message.id) {
                 case 'ping':
 
-                    ws.send(JSON.stringify({
-                        id: 'pong',
-                        message: 'from RK API Server for client with ' + sessionId
-                    }))
+                    console.log('ping')
                     break
 
                 case 'stats':
@@ -133,12 +131,12 @@ export default function (app: Express, server:Server,sessionHandler: express.Req
                     onIceCandidate(message.roomId, websocketId, message.candidate);
                     break;
 
-                // default:
-                //     ws.send(JSON.stringify({
-                //         id: 'error',
-                //         message: 'Invalid message ' + message
-                //     }))
-                //     break
+                default:
+                    ws.send(JSON.stringify({
+                        id: 'error',
+                        message: 'Invalid message ' + message
+                    }))
+                    break
             }
         })
     })

@@ -1,6 +1,7 @@
 node_modules
-# dist
+dist/*
 # key/server.cert
 # key/server.key
 .nyc_output
 .vscode/settings.json
+app.log

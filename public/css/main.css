@@ -1,0 +1,213 @@
+body {
+    background: #D8D8D8;
+    color: rgba(0, 0, 0, 0.87);
+    font-family: Roboto, Helvetica, Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+#message {
+    background: white;
+    max-width: 360px;
+    margin: 100px auto 16px;
+    padding: 32px 24px;
+    border-radius: 3px;
+}
+
+#message h2 {
+    color: #ffa100;
+    font-weight: bold;
+    font-size: 16px;
+    margin: 0 0 8px;
+}
+
+#message h1 {
+    font-size: 22px;
+    font-weight: 300;
+    color: rgba(0, 0, 0, 0.6);
+    margin: 0 0 16px;
+}
+
+#message p {
+    line-height: 140%;
+    margin: 16px 0 24px;
+    font-size: 14px;
+}
+
+#message a {
+    display: block;
+    text-align: center;
+    background: #039be5;
+    text-transform: uppercase;
+    text-decoration: none;
+    color: white;
+    padding: 16px;
+    border-radius: 4px;
+}
+
+#message,
+#message a {
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+}
+
+#load {
+    color: rgba(0, 0, 0, 0.4);
+    text-align: center;
+    font-size: 13px;
+}
+
+@media (max-width: 600px) {
+
+    body,
+    #message {
+        margin-top: 0;
+        background: white;
+        box-shadow: none;
+    }
+
+}
+
+body {
+    margin: 1em;
+}
+
+button {
+    margin: 0.2em 0.1em;
+}
+
+/* div#videos {
+    padding-bottom: 20px;
+} */
+
+div#videos>video#localVideo {
+    background: #6f0846;
+    width: 230px;
+    height: 173px;
+    border-radius: 15px;
+    right: 1rem;
+    bottom: 1rem;
+    position: absolute;
+}
+div#videos>video#remoteVideo {
+    background: #342b6e;
+    width: 100%;
+    height: 100%;
+    /* margin: 1em; */
+    border-radius: 10px;
+    z-index: -9997;
+    position: absolute;
+    top: 0px;
+    left: 0px;
+}
+.demo-card-wide {
+    width: 460px;
+    margin: 1em;
+    border-radius: 15px;
+}
+/* .mdl-card__title {
+    background: url('../assets/demos/welcome_card.jpg') center / cover;
+} */
+div#buttons {
+    position: absolute;
+    padding: 0.5rem;
+    background-color: #ECEFF1;
+    border-radius: 10px;
+    box-shadow: 0 1px 15px rgba(0, 0, 0, 0.5), 0 1px 2px rgba(0, 0, 0, 0.24);
+    left: 1rem;
+    top: 1rem;
+    width: 5rem;
+}
+div#buttons>button {
+    height: 4rem;
+    text-align: center;
+}
+
+.center {
+    padding-top: 5rem;
+    padding-bottom: 1rem;
+    text-align: center;
+}
+
+#webappBtn {
+    /* padding: 1em 1em; */
+    margin: 1em;
+    border-radius: 15px;
+    width: 30rem;
+    height: 15rem;
+    box-shadow: 0 1px 15px rgba(0, 0, 0, 0.9), 0 1px 2px rgba(0, 0, 0, 0.24);
+}
+
+#hololensBtn {
+    /* padding: 1em 1em; */
+    margin: 1em;
+    border-radius: 15px;
+    width: 30rem;
+    height: 15rem;
+    background-color: #1b1451;
+    box-shadow: 0 1px 15px rgba(0, 0, 0, 0.9), 0 1px 2px rgba(0, 0, 0, 0.24);
+}
+
+#remaid_logo {
+    width: 100px;
+    position: absolute;
+    bottom: 1rem;
+    left: 1rem;
+}
+
+div#videosHololens>video#remoteVideo {
+    background: #6f0846;
+    width: 20%;
+    border-radius: 15px;
+    right: 1rem;
+    bottom: 1rem;
+    position: absolute;
+}
+div#videosHololens>video#localVideo {
+    background: #342b6e;
+    height: 100%;
+    /* height: 100%; */
+    /* margin: 1em; */
+    border-radius: 10px;
+    z-index: -9997;
+    position: absolute;
+    top: 0px;
+    left: 0px;
+}
+
+div#videosWebapp>video#localVideo {
+    background: #6f0846;
+    width: 20%;
+    border-radius: 15px;
+    right: 1rem;
+    bottom: 1rem;
+    position: absolute;
+}
+div#videosWebapp>video#remoteVideo {
+    background: #342b6e;
+    height: 100%;
+    /* height: 100%; */
+    /* margin: 1em; */
+    border-radius: 10px;
+    z-index: -9997;
+    position: absolute;
+    top: 0px;
+    left: 0px;
+}
+.demo-card-wide {
+    width: 460px;
+    margin: 1em;
+    border-radius: 15px;
+}
+div#debugCard {
+    width: 22rem;
+    margin: 1em;
+    border-radius: 15px;
+    position: absolute;
+    right: 0px;
+
+}
+
+button#expandBtn{
+    background-color: #6f0846;
+    box-shadow: 0 1px 15px rgba(0, 0, 0, 0.5), 0 1px 2px rgba(0, 0, 0, 0.24);
+}
